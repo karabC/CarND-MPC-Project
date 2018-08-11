@@ -27,3 +27,16 @@ However, the weighting factor for all these components had certain trade-off. Bu
 
 Ideally, the only constraints should be the limitation of the control/actuators. However, as we also treat some initialized state(the current observation) as variables, we will also set these variables to the observed value.
 The dependent variables are with nearly no constraints as it should be derived by the current state and the current control.
+
+
+## Comparison to PID Controller
+Compared to PID Controller, MPC Controller is much reliable as it can leverage some predicted future state for the error minimization.
+PID controller can only consider the current errors(Cross track error and Orientation Error).
+
+For parameter tuning, once the the parameter is basically set. It would be very easy to speed up the car to a wanted speed as we got the referenced velocity as part of our objective function.
+
+![alt text](high_speed.png "Logo Title Text 1")
+The car can be pushed up to 91.3 MPH.
+
+So in short, the parameter for MPC is more invariant with the speed while PID Controller is not.
+

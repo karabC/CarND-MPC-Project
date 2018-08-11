@@ -116,7 +116,7 @@ int main() {
           // calculating the orientation error
           double epsi = psi - atan(coeffs[1]);
 
-          // define LF again for the predict after 
+          // define LF again for the prediction of a short latency state 
           const double Lf = 2.67;
           
           // Latency for predicting time at actuation
