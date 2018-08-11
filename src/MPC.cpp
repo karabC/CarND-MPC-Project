@@ -36,7 +36,7 @@ class FG_eval {
   // Ideal Error
   const double ref_cte = 0; // ideal cross-track error
   const double ref_epsi = 0; // ideal heading error
-  double ref_v = 50; // The reference velocity in m/s.
+  double ref_v = 100; // The reference velocity in m/s.
   // Parameter of cost function
   const double para_cte = 2000;    // Parameter for Cross Tracking Error
   const double para_epsi = 2000;    // Parameter for Orientation Error
