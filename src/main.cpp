@@ -130,9 +130,12 @@ int main() {
 
 		  // compute the optimal trajectory
 		  auto result = mpc.Solve(state, coeffs);
-		  
-          double steer_value = -result[0]/ deg2rad(25);
-          double throttle_value = result[1]/ 5.0 ;
+
+		  mpc.prev_delta = result[0];
+		  mpc.prev_a = result[1];
+
+		  double steer_value = -result[0]/ deg2rad(25);
+		  double throttle_value = result[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
