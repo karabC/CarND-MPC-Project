@@ -116,14 +116,13 @@ int main() {
           // calculating the orientation error
           double epsi = psi - atan(coeffs[1]);
 
-
+          // define LF again for the predict after 
           const double Lf = 2.67;
           
           // Latency for predicting time at actuation
           const double dt = 0.1;
           
-          
-          // Predict what values will be in 100 ms, to resolve latency
+          // Predict what values in later stage, to resolve latency
           double pred_px = 0.0 + v * dt; 
           double pred_py = 0.0;
           double pred_psi = 0.0 + v * - delta / Lf * dt;
@@ -152,7 +151,7 @@ int main() {
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
-          
+          // Get the predicted trajaectory from the MPC return
           for (int i = 2; i < vars.size(); i++)
           {
               if (i % 2 == 0)

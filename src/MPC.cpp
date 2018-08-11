@@ -38,13 +38,13 @@ class FG_eval {
   const double ref_epsi = 0; // ideal heading error
   double ref_v = 25; // The reference velocity in m/s.
   // Parameter of cost function
-  const double para_cte = 2000; // cost factor. the higher this factor the more aggressively we try to return to the trajectory
-  const double para_epsi = 2000; // cost factor. the higher this factor the more stable our steering is
-  const double para_vec = 1; // cost factor. the higher this factor the more stable our steering is
-  const double para_steering = 5; // cost factor. the higher this factor the more stable our steering is
-  const double para_acceleration = 5;
-  const double para_seq_delta = 200;
-  const double para_seq_a = 10;
+  const double para_cte = 2000;    // Parameter for cost function
+  const double para_epsi = 2000;    // Parameter for cost function
+  const double para_vec = 1;    // Parameter for cost function
+  const double para_steering = 5;    // Parameter for cost function
+  const double para_acceleration = 5;    // Parameter for cost function
+  const double para_seq_delta = 200;    // Parameter for cost function
+  const double para_seq_a = 10;    // Parameter for cost function
 
 
   // Fitted polynomial coefficients
@@ -53,10 +53,7 @@ class FG_eval {
 
   typedef CPPAD_TESTVECTOR(AD<double>) ADvector;
   void operator()(ADvector& fg, const ADvector& vars) {
-    // TODO: implement MPC
-    // `fg` a vector of the cost constraints, `vars` is a vector of variable values (state & actuators)
-    // NOTE: You'll probably go back and forth between this function and
-    // the Solver function below.
+    // initialize fg[0] as 0. (The cost function)
     fg[0] = 0;
 
     // The part of the cost based on the reference state.
@@ -190,8 +187,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
     vars_upperbound[i] = 1.0e19;
   }
 
-  // The upper and lower limits of steering angle should be set to 
-  // TODO: should set to -1 and 1 ....
+  // The upper and lower limits of steering angle should be set to  [-25 degree to 25 degree]
   double max_steering_angle = 25.0;
   for (int i = delta_start; i < a_start; i++) {
     vars_lowerbound[i] = -max_steering_angle * M_PI / 180;
@@ -199,7 +195,7 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   }
 
 
-  // The upper and lower limits for acceleeration, says 5.0 m/s^2
+  // The upper and lower limits for acceleeration [-1, 1]
   double max_acceleration = 1.0;
   for (int i = a_start; i < n_vars; i++) {
     vars_lowerbound[i] = -max_acceleration;
@@ -264,10 +260,10 @@ vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   auto cost = solution.obj_value;
   std::cout << "Cost " << cost << std::endl;
 
-  // Return the first actuator values. 
+  // Solution: First two values: actuator values. 
   vector<double> sol = { solution.x[delta_start] , solution.x[a_start] };
 
-// For printint the lines  
+  // Solution: Remained value - lines printing
   for (int i = 0; i < N - 1; i++)
   {
       sol.push_back(solution.x[x_start + i + 1]);
