@@ -93,49 +93,54 @@ int main() {
           double py = j[1]["y"];
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
+          double delta = j[1]["steering_angle"];
+          double a = j[1]["throttle"];
 
-          /*
-          * TODO: Calculate steering angle and throttle using MPC.
-          *
-          * Both are in between [-1, 1].
-          *
-          */
-		  VectorXd m_ptsx = VectorXd(ptsx.size());
-		  VectorXd m_ptsy = VectorXd(ptsy.size());
+          Eigen::VectorXd ptsx_car(ptsx.size());
+          Eigen::VectorXd ptsy_car(ptsy.size());
 
-		  // transform the global coordinates to vehicle coordinates,
-		  for (int i = 0; i < ptsx.size(); ++i) {
-			  assert(ptsx.size() == ptsy.size());
-			  m_ptsx[i] = (ptsx[i] - px) * cos(psi) + (ptsy[i] - py) * sin(psi);
-			  m_ptsy[i] = -(ptsx[i] - px) * sin(psi) + (ptsy[i] - py) * cos(psi);
 
-		  }
+          for (int i = 0; i < ptsx.size(); i++) 
+          {
+              double x_shift = ptsx[i] - px;
+              double y_shift = ptsy[i] - py;
+              ptsx_car[i] = x_shift * cos(0-psi) - y_shift * sin(0-psi);
+              ptsy_car[i] = x_shift * sin(0-psi) + y_shift * cos(0-psi);
+          }
+          // Fits the x and y coordinates into 3rd-order polynomial 
+          auto coeffs = polyfit(ptsx_car, ptsy_car, 3);
+          
+          //calculating the cross track error (cte)
+          double cte = polyeval(coeffs, 0);
+          
+          // calculating the orientation error
+          double epsi = psi - atan(coeffs[1]);
 
-		  auto coeffs = polyfit(m_ptsx, m_ptsy, 3);
-		  // since we use the vehicle coordinates, the x is 0
-		  auto cte = polyeval(coeffs, 0);
-		  auto epsi = -atan(coeffs[1]);
 
-		  Eigen::VectorXd state(6);
-		  state << 0, 0, 0, v, cte, epsi;
-
-		  std::vector<double> x_vals = { state[0] };
-		  std::vector<double> y_vals = { state[1] };
-		  std::vector<double> psi_vals = { state[2] };
-		  std::vector<double> v_vals = { state[3] };
-		  std::vector<double> cte_vals = { state[4] };
-		  std::vector<double> epsi_vals = { state[5] };
-		  std::vector<double> delta_vals = {};
-		  std::vector<double> a_vals = {};
-
-		  // compute the optimal trajectory
-		  auto result = mpc.Solve(state, coeffs);
-
-		  mpc.prev_delta = result[0];
-		  mpc.prev_a = result[1];
-
-		  double steer_value = -result[0]/ deg2rad(25);
-		  double throttle_value = result[1];
+          const double Lf = 2.67;
+          
+          // Latency for predicting time at actuation
+          const double dt = 0.1;
+          
+          
+          // Predict what values will be in 100 ms, to resolve latency
+          double pred_px = 0.0 + v * dt; 
+          double pred_py = 0.0;
+          double pred_psi = 0.0 + v * - delta / Lf * dt;
+          double pred_v = v + a * dt;
+          double pred_cte = cte + v * sin(epsi) * dt;
+          double pred_epsi = epsi + v * -delta / Lf * dt;
+          
+          
+          Eigen::VectorXd state(6); // new vector to hold the predicted states
+          state << pred_px, pred_py, pred_psi, pred_v, pred_cte, pred_epsi;
+          
+          // calling the solve function, to solve and predicte x and y in the future 
+          auto vars = mpc.Solve(state, coeffs);
+          
+          // extracting the steering and throttel values from the solver return parameter
+          double steer_value = vars[0]; //converting the angle to radian taking into consideration LF
+          double throttle_value = vars[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
