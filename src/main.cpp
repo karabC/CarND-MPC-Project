@@ -9,6 +9,8 @@
 #include "MPC.h"
 #include "json.hpp"
 
+using namespace Eigen;
+
 // for convenience
 using json = nlohmann::json;
 
