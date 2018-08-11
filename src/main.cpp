@@ -98,6 +98,37 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
+		  VectorXd m_ptsx = VectorXd(ptsx.size());
+		  VectorXd m_ptsy = VectorXd(ptsy.size());
+
+		  // transform the global coordinates to vehicle coordinates,
+		  for (int i = 0; i < ptsx.size(); ++i) {
+			  assert(ptsx.size() == ptsy.size());
+			  m_ptsx[i] = (ptsx[i] - px) * cos(psi) + (ptsy[i] - py) * sin(psi);
+			  m_ptsy[i] = -(ptsx[i] - px) * sin(psi) + (ptsy[i] - py) * cos(psi);
+
+		  }
+
+		  auto coeffs = polyfit(m_ptsx, m_ptsy, 3);
+		  // since we use the vehicle coordinates, the x is 0
+		  auto cte = polyeval(coeffs, 0);
+		  auto epsi = -atan(coeffs[1]);
+
+		  Eigen::VectorXd state(6);
+		  state << 0, 0, 0, v, cte, epsi;
+
+		  std::vector<double> x_vals = { state[0] };
+		  std::vector<double> y_vals = { state[1] };
+		  std::vector<double> psi_vals = { state[2] };
+		  std::vector<double> v_vals = { state[3] };
+		  std::vector<double> cte_vals = { state[4] };
+		  std::vector<double> epsi_vals = { state[5] };
+		  std::vector<double> delta_vals = {};
+		  std::vector<double> a_vals = {};
+
+		  // compute the optimal trajectory
+		  auto result = mpc.Solve(state, coeffs);
+		  
           double steer_value = -result[0]/ deg2rad(25);
           double throttle_value = result[1]/ 5.0 ;
 
