@@ -36,15 +36,15 @@ class FG_eval {
   // Ideal Error
   const double ref_cte = 0; // ideal cross-track error
   const double ref_epsi = 0; // ideal heading error
-  double ref_v = 25; // The reference velocity in m/s.
+  double ref_v = 50; // The reference velocity in m/s.
   // Parameter of cost function
-  const double para_cte = 2000;    // Parameter for cost function
-  const double para_epsi = 2000;    // Parameter for cost function
-  const double para_vec = 1;    // Parameter for cost function
-  const double para_steering = 5;    // Parameter for cost function
-  const double para_acceleration = 5;    // Parameter for cost function
-  const double para_seq_delta = 200;    // Parameter for cost function
-  const double para_seq_a = 10;    // Parameter for cost function
+  const double para_cte = 2000;    // Parameter for Cross Tracking Error
+  const double para_epsi = 2000;    // Parameter for Orientation Error
+  const double para_vec = 1;    // Parameter for Reference Velocity Penalization
+  const double para_steering = 5;    // Parameter for Steering Control Penalization
+  const double para_acceleration = 5;    // Parameter for Accleartion Control Penalization
+  const double para_seq_delta = 200;    // Parameter for Delta Steering Control Penalization
+  const double para_seq_a = 10;    // Parameter for cost Delta Acceleration Control Penalization
 
 
   // Fitted polynomial coefficients
